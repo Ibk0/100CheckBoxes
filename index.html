@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkbox Sync</title>
+    <style>
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="checkbox-grid"></div>
+    <script src="/sockets/socket.io.js"></script> <!-- Make sure this is correct -->
+    <script>
+        const socket = io(); // Initialize Socket.io
+        fetch('/api/checkboxes')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach((state, index) => {
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.checked = state;
+                    checkbox.addEventListener('change', () => {
+                        socket.emit('checkboxChange', index, checkbox.checked);
+                    });
+                    document.querySelector('.checkbox-grid').appendChild(checkbox);
+                });
+            });
+
+        socket.on('checkboxChange', (index, value) => {
+            document.querySelectorAll('.checkbox-grid input')[index].checked = value;
+        });
+    </script>
+</body>
+
+</html>
